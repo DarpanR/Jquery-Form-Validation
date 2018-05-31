@@ -1,12 +1,6 @@
 $.extend ($.fn, {
 	validation : function () {
-		let validator = $.data (this[0], "validator");
-
-		if (!validator) {
-			validator = new $.validator (this[0]);
-		}
-		$.data (this[0], "validator", validator);
-		return this;
+		return $.fetchValidator (this).form;
 	}, 
 
 	initiate : function (rules, types, options) {
