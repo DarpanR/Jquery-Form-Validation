@@ -55,6 +55,9 @@ $.extend ($.fn, {
 				}
 
 				$(setting.selector).on (setting.event, function (event) {
+					if ($(this).is (":focus")) {
+						// console.log (this);
+					}
 					validator.event = setting.event;
 					setting.handler.call ($(setting.selector), event);
 				});
@@ -102,7 +105,7 @@ $.extend ($.fn, {
 
 			$.each ((rule.selector == "all") ? validator.form : 
 				validator.form.find (rule.selector), function () {
-					console.log (this);
+				
 				$(this).on (rule.event, function () {
 					let message = rule.handler.call (this);
 					$(this).errorHandling (message);
@@ -184,8 +187,8 @@ $.extend ($.fn, {
 		if (validator.valid) {
 			validator.formData[validator.submit.attr ("name")] = validator.submit.val ();
 
-			for (let type in validator.types) {
-				$.each (validator.form.find ( type.selector), function () {
+			for (let type of validator.types) {
+				$.each (validator.form.find (type.selector), function () {
 					if (type.handler.call (this)) {
 						if (!($(this).attr ("name") in validator.formData)) {
 							validator.formData[$(this).attr ("name")] = $(this).val ();
@@ -231,7 +234,7 @@ $.extend ($.fn, {
 			"[type=file]", "[type=datetime-local]", "select", "[type=checkbox]"],
 		handler : function () {
 			if ($(this).is ("[type=checkbox]")) {
-				return object[0].checked;
+				return this.checked;
 			}
 
 			if ($(this).val () == "") {
