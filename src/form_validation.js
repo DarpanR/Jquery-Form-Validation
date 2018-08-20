@@ -52,12 +52,22 @@ $.extend ($.fn, {
 						}
 					});
 				}
+<<<<<<< HEAD
 			} else if (main.handler != undefined && main.handler instanceof Function) {
 				$(main.selector).on (main.event, function (event) {
 					if ($(this).is (":focus")) {
 						validator.event = (main.event == "submit") ? "click" :  main.event;
 						main.handler.call (this, event);
 					}
+=======
+
+				$(setting.selector).on (setting.event, function (event) {
+					if ($(this).is (":focus")) {
+						// console.log (this);
+					}
+					validator.event = setting.event;
+					setting.handler.call ($(setting.selector), event);
+>>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 				});
 			} else {
 				delete (validator.options[option]);
@@ -132,8 +142,14 @@ $.extend ($.fn, {
 				continue;
 			}
 
+<<<<<<< HEAD
 			$.each ((rule.selector == "all") ? validator.form[0] : 
 				$(rule.selector), function () {
+=======
+			$.each ((rule.selector == "all") ? validator.form : 
+				validator.form.find (rule.selector), function () {
+				
+>>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 				$(this).on (rule.event, function () {
 					let message = rule.handler.call (this);
 					$(this).errorHandling (message);
@@ -265,7 +281,11 @@ $.extend ($.fn, {
 			validator.formData[$(validator.submit.selector).attr ("name")] = $(validator.submit.selector).val ();
 
 			for (let type of validator.types) {
+<<<<<<< HEAD
 				$.each ($(type.selector), function () {
+=======
+				$.each (validator.form.find (type.selector), function () {
+>>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 					if (type.handler.call (this)) {
 						if (!$(this).attr ("name") in validator.formData) {
 							validator.formData[$(this).attr ("name")] = $(this).val ();
@@ -358,6 +378,26 @@ $.extend ($.fn, {
 		return this;
 	},
 
+<<<<<<< HEAD
+=======
+	defaultType : {
+		selector : ["[type=text]", "[type=textarea]", "[type=number]", "[type=email]",
+			"[type=password]", "[type=date]", "[type=week]", "[type=month]", "[type=time]",
+			"[type=tel]", "[type=url]", "[type=range]", "[type=color]", "[type=image]",
+			"[type=file]", "[type=datetime-local]", "select", "[type=checkbox]"],
+		handler : function () {
+			if ($(this).is ("[type=checkbox]")) {
+				return this.checked;
+			}
+
+			if ($(this).val () == "") {
+				return false;
+			}
+			return true;
+		}
+	},
+
+>>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 	addRule : function (event, selector, handler) {
 		let validator = $.fetchValidator (this);
 
