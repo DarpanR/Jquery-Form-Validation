@@ -19,7 +19,7 @@ $.extend ($.fn, {
 
 		if (options != undefined) {
 			$(validator).addOption (options);
-		};
+		}
 
 		if (submit != undefined) {
 			$(validator).submit (submit);
@@ -52,69 +52,17 @@ $.extend ($.fn, {
 						}
 					});
 				}
-<<<<<<< HEAD
 			} else if (main.handler != undefined && main.handler instanceof Function) {
 				$(main.selector).on (main.event, function (event) {
 					if ($(this).is (":focus")) {
 						validator.event = (main.event == "submit") ? "click" :  main.event;
 						main.handler.call (this, event);
 					}
-=======
-
-				$(setting.selector).on (setting.event, function (event) {
-					if ($(this).is (":focus")) {
-						// console.log (this);
-					}
-					validator.event = setting.event;
-					setting.handler.call ($(setting.selector), event);
->>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 				});
 			} else {
 				delete (validator.options[option]);
 			}
 		}
-		
-		// for (let i in validator.options) {
-		// 	let option = validator.options[i];
-		// 	for (let j in option) {
-		// 		let setting = option[j];
-
-		// 		if (!setting.selector) {
-		// 			setting.selector = option.main.selector ||
-		// 			$.fn.defaultOption[i].selector || "";
-		// 		}
-
-		// 		if (!setting.event) {
-		// 			setting.selector = option.main.event ||
-		// 			$.fn.defaultOption[i].event || "click";
-		// 		}
-
-		// 		if (!setting.handler) {
-		// 			setting.handler = $.fn.defaultOption[i].handler || null;
-		// 		}	
-
-		// 		if (!setting.handler instanceof Function) {
-		// 			console.log ("The option for '" + i + "' in setting '" + setting + "' does not have valid handler.");
-	 // 				return this;
-	 // 			}
-
-	 // 			if (!(setting.selector || setting.event || setting.handler)) {
-		// 			console.log ("Option '" + i + "' has empty settings in '" + setting + "'.");
-		// 			return this;
-		// 		}
-
-		// 		if (setting.event == "submit") {
-		// 			setting.event = "click";
-		// 		}
-
-		// 		$(setting.selector).on (setting.event, function (event) {
-		// 			if ($(this).is (":focus")) {
-		// 				validator.event = setting.event;
-		// 				setting.handler.call ($(setting.selector), event);
-		// 			}
-		// 		});
-		// 	}
-		// }
 
 		for (let i = 0; i < validator.rules.length; i++) {
 			let rule = validator.rules[i];
@@ -142,14 +90,8 @@ $.extend ($.fn, {
 				continue;
 			}
 
-<<<<<<< HEAD
 			$.each ((rule.selector == "all") ? validator.form[0] : 
 				$(rule.selector), function () {
-=======
-			$.each ((rule.selector == "all") ? validator.form : 
-				validator.form.find (rule.selector), function () {
-				
->>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 				$(this).on (rule.event, function () {
 					let message = rule.handler.call (this);
 					$(this).errorHandling (message);
@@ -192,7 +134,7 @@ $.extend ($.fn, {
 			}
 		}
 
-		if (!submit.handler instanceof Function) {
+		if (submit.handler == undefined ||!submit.handler instanceof Function) {
 			submit.handler = $.fn.defaults.submit.handler;
 		}
 
@@ -219,7 +161,7 @@ $.extend ($.fn, {
 			}
 		}
 
-		if (!reset.handler instanceof Function) {
+		if (reset.handler == undefined || !reset.handler instanceof Function) {
 			reset.handler = $.fn.defaults.reset.handler;
 		}
 
@@ -281,11 +223,7 @@ $.extend ($.fn, {
 			validator.formData[$(validator.submit.selector).attr ("name")] = $(validator.submit.selector).val ();
 
 			for (let type of validator.types) {
-<<<<<<< HEAD
 				$.each ($(type.selector), function () {
-=======
-				$.each (validator.form.find (type.selector), function () {
->>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 					if (type.handler.call (this)) {
 						if (!$(this).attr ("name") in validator.formData) {
 							validator.formData[$(this).attr ("name")] = $(this).val ();
@@ -378,26 +316,6 @@ $.extend ($.fn, {
 		return this;
 	},
 
-<<<<<<< HEAD
-=======
-	defaultType : {
-		selector : ["[type=text]", "[type=textarea]", "[type=number]", "[type=email]",
-			"[type=password]", "[type=date]", "[type=week]", "[type=month]", "[type=time]",
-			"[type=tel]", "[type=url]", "[type=range]", "[type=color]", "[type=image]",
-			"[type=file]", "[type=datetime-local]", "select", "[type=checkbox]"],
-		handler : function () {
-			if ($(this).is ("[type=checkbox]")) {
-				return this.checked;
-			}
-
-			if ($(this).val () == "") {
-				return false;
-			}
-			return true;
-		}
-	},
-
->>>>>>> d11d9584091762f4b2e436cff87410d20761e170
 	addRule : function (event, selector, handler) {
 		let validator = $.fetchValidator (this);
 
@@ -436,7 +354,7 @@ $.extend ($.fn, {
 		let validator = $.fetchValidator (this);
 
 		if (Array.isArray (main)) {
-			$(validator).iterateOverArray (main, $.fn.addRule);
+			$(validator).iterateOverArray (main, $.fn.addOption);
 		}
 		let option = {"main" : main, "subs": []};
 
@@ -510,10 +428,10 @@ $.extend ($.fn, {
 
 		if (path != ("" || undefined)) {
 			$.fetchValidator (this).ajax = path;
-		}
+		} 
 
 		if (validator.ajax != ("" || undefined)) {
-			throw new Error ("Not ajax path set");
+			throw new Error ("No ajax path set");
 		}
 		return $.fetchValidator (this).ajax;
 	}
@@ -534,7 +452,6 @@ $.validator = function (form) {
 	this.types = [];
 	this.options = [];
 	this.formData = {};
-
 	this.submit = {};
 	this.reset =  {};
 	return this;
