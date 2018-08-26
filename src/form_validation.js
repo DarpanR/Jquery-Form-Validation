@@ -1,7 +1,7 @@
 $.extend ($.fn, {
 	validation : function () {
 		return $.fetchValidator (this).form;
-	}, 
+	},
 
 	initiate : function (rules, types, options, submit, reset) {
 		let validator = $.fetchValidator (this);
@@ -29,50 +29,15 @@ $.extend ($.fn, {
 			$(validator).reset (reset);
 		}
 
-		for (let option of validator.options) {
-			let main = option.main;
-			main.event = main.event || "click";
-			main.selector = main.selector || "all";
-
-			if (option.subs.length) {
-				for (let sub of option.subs) {
-					sub.selector = sub.selector || main.selector;
-					sub.event = sub.event || main.event;
-
-					if (sub.handler == undefined || !(sub.handler instanceof Function)) {
-						console.log ();
-						delete (sub);
-						continue;
-					}
-
-					$(sub.selector).on (sub.event, function (event) {
-						if ($(this).is (":focus")) {
-							validator.event = (sub.event == "submit") ? "click" : sub.event;
-							sub.handler.call ($(this, event));
-						}
-					});
-				}
-			} else if (main.handler != undefined && main.handler instanceof Function) {
-				$(main.selector).on (main.event, function (event) {
-					if ($(this).is (":focus")) {
-						validator.event = (main.event == "submit") ? "click" :  main.event;
-						main.handler.call (this, event);
-					}
-				});
-			} else {
-				delete (validator.options[option]);
-			}
-		}
-
 		for (let i = 0; i < validator.rules.length; i++) {
 			let rule = validator.rules[i];
 
-			if (rule.event == (undefined || "")) {
+			if (rule.event == undefined || rule.event == "") {
 				rule.event = "submit";
 				rule.selector = rule.selector || validator.submit.selector || $.fn.defaults.submit.selector;
 			}
 
-			if (rule.selector == (undefined || "")) {
+			if (rule.selector == undefined || rule.selector == "") {
 				rule.selector = "all";
 			}
 
@@ -113,12 +78,51 @@ $.extend ($.fn, {
 				continue;
 			}
 
+			if (type.selector == undefined || type.selector == "") {
+				type.selector = "all";
+			}
+
 			if (!type.handler || !(type.handler instanceof Function)) {
 				type.handler = function () {
 					return true;
 				}
 			}
 			validator.types[i] = type;
+		}
+
+		for (let option of validator.options) {
+			let main = option.main;
+			main.event = main.event || "click";
+			main.selector = main.selector || "all";
+
+			if (option.subs.length) {
+				for (let sub of option.subs) {
+					sub.selector = sub.selector || main.selector;
+					sub.event = sub.event || main.event;
+
+					if (sub.handler == undefined || !(sub.handler instanceof Function)) {
+						console.log ();
+						delete (sub);
+						continue;
+					}
+
+					$(sub.selector).on (sub.event, function (event) {
+						if ($(this).is (":focus")) {
+							validator.event = (sub.event == "submit") ? "click" : sub.event;
+							sub.handler.call ($(this, event));
+						}
+					});
+				}
+			} else if (main.handler != undefined && main.handler instanceof Function) {
+				$(main.selector).on (main.event, function (event) {
+					if ($(this).is (":focus")) {
+						validator.event = (main.event == "submit") ? "click" :  main.event;
+						main.handler.call (this, event);
+					}
+				});
+			} else {
+				delete (validator.options[option]);
+			}
 		}
 		submit = validator.submit;
 
@@ -134,11 +138,11 @@ $.extend ($.fn, {
 			}
 		}
 
-		if (submit.handler == undefined ||!submit.handler instanceof Function) {
+		if (submit.handler == undefined || !submit.handler instanceof Function) {
 			submit.handler = $.fn.defaults.submit.handler;
 		}
 
-		if (submit.event == ("" || undefined)) {
+		if (submit.event == undefined || submit.event == "") {
 			submit.event = $.fn.defaults.submit.event;
 		}		
 
@@ -165,7 +169,7 @@ $.extend ($.fn, {
 			reset.handler = $.fn.defaults.reset.handler;
 		}
 
-		if (reset.event == ("" || undefined)) {
+		if (reset.event == undefined || reset.event == "") {
 			reset.event = $.fn.defaults.reset.event;
 		}
 
@@ -235,92 +239,21 @@ $.extend ($.fn, {
 			}
 		}
 		return validator.formData;
-	}, 
-
-	submit : function (event, selector, handler) {
-		if (event instanceof Object) {
-			handler = event.handler;
-			selector = event.selector.toString ();
-			event = event.event;
-		}
-
-		if (event instanceof Function) {
-			handler = event;
-			selector = "all";
-			event = "submit";
-		}
-
-		if (selector instanceof Function) {
-			handler = selector;
-			selector = event.toString ();
-			event = "submit";
-		}
-
-		$.fetchValidator (this).submit = {
-			event : event,
-			selector : selector,
-			handler : handler
-		}
-		return this;
-	},
-
-	reset : function (event, selector, handler) {
-		if (event instanceof Object) {
-			handler = event.handler;
-			selector = event.selector.toString ();
-			event = event.event;
-		}
-
-		if (event instanceof Function) {
-			handler = event;
-			selector = "all";
-			event = "reset";
-		}
-
-		if (selector instanceof Function) {
-			handler = selector;
-			selector = event.toString ();
-			event = "reset";
-		}
-
-		$.fetchValidator (this).reset = {
-			event : event,
-			selector : selector,
-			handler : handler
-		}
-		return this;
-	},
-
-	addType : function (selector, handler) {
-		let validator = $.fetchValidator (this);
-
-		if (Array.isArray (selector)) {
-			$(validator).iterateOverArray (selector, $(validator).addType);
-			return this;
-		}
-
-		if (selector instanceof Function) {
-			handler = selector;
-			selector = "all";
-		}
-
-		if (selector instanceof Object) {
-			handler = selector.handler;
-			selector = selector.selector;
-		}
-
-		validator.types.push ({
-			selector : selector.toString (),
-			handler : handler
-		});
-		return this;
 	},
 
 	addRule : function (event, selector, handler) {
+		if (event == undefined) {
+			return this;
+		}
+
+		if (event == "nodefault") {
+			$.fn.defaults.rules = [];
+			return this;
+		}
 		let validator = $.fetchValidator (this);
 
 		if (Array.isArray (event)) {
-			$(validator).iterateOverArray (event, $(validator).addRule);
+			$(validator).iterateOverArray (event, $.fn.addRule);
 			return this;
 		}
 
@@ -351,6 +284,14 @@ $.extend ($.fn, {
 	},
 
 	addOption : function (main, subs = []) {
+		if (main == undefined) {
+			return this;
+		}
+
+		if (main == "nodefault") {
+			$.fn.defaults.options = [];
+			return this;
+		}
 		let validator = $.fetchValidator (this);
 
 		if (Array.isArray (main)) {
@@ -358,19 +299,119 @@ $.extend ($.fn, {
 		}
 		let option = {"main" : main, "subs": []};
 
-		for (let sub of subs) {
-			if (!(sub.event && sub.selector && sub.handler)) {
-				continue;
+		if (!Array.isArray (subs)) {
+			if (subs.event || subs.selector || subs.handler) {
+				options.subs.push (subs);
 			}
-			option.subs.push (sub);
+		} else {
+			for (let sub of subs) {
+				if (sub.event || sub.selector || sub.handler) {
+					options.subs.push (sub);
+				}
+			}
 		}
 		validator.options.push (option);
 		return this;
 	},
 
+	addType : function (selector, handler) {
+		if (selector == undefined) {
+			return this;
+		}
+
+		if (selector == "nodefault") {
+			$.fn.defaults.types = [];
+			return this;
+		}
+		let validator = $.fetchValidator (this);
+
+		if (Array.isArray (selector)) {
+			$(validator).iterateOverArray (selector, $.fn.addType);
+			return this;
+		}
+
+		if (selector instanceof Function) {
+			handler = selector;
+			selector = "all";
+		}
+
+		if (selector instanceof Object) {
+			handler = selector.handler;
+			selector = selector.selector;
+		}
+
+		validator.types.push ({
+			selector : selector.toString (),
+			handler : handler
+		});
+		return this;
+	},
+
+	submit : function (event, selector, handler) {
+		if (event == undefined) {
+			return this;
+		}
+		
+		if (event instanceof Object) {
+			handler = event.handler;
+			selector = event.selector.toString ();
+			event = event.event;
+		}
+
+		if (event instanceof Function) {
+			handler = event;
+			selector = "all";
+			event = "submit";
+		}
+
+		if (selector instanceof Function) {
+			handler = selector;
+			selector = event.toString ();
+			event = "submit";
+		}
+
+		$.fetchValidator (this).submit = {
+			event : event,
+			selector : selector,
+			handler : handler
+		}
+		return this;
+	},
+
+	reset : function (event, selector, handler) {
+		if (event == undefined) {
+			return this;
+		}
+
+		if (event instanceof Object) {
+			handler = event.handler;
+			selector = event.selector.toString ();
+			event = event.event;
+		}
+
+		if (event instanceof Function) {
+			handler = event;
+			selector = "all";
+			event = "reset";
+		}
+
+		if (selector instanceof Function) {
+			handler = selector;
+			selector = event.toString ();
+			event = "reset";
+		}
+
+		$.fetchValidator (this).reset = {
+			event : event,
+			selector : selector,
+			handler : handler
+		}
+		return this;
+	},
+
 	iterateOverArray : function (array, handler) {
-		if (!array.length) {
-			throw new Error ();
+		if (!Array.isArray (array)) {
+			throw new Error ("Not an array, can not iterated over.");
 		}
 
 		for (let arr of array) {
@@ -420,17 +461,17 @@ $.extend ($.fn, {
 				}
 				return true;
 			}
-		}, options : {}
-	}, 
+		}, options : []
+	},
 
 	ajax : function (path) {
 		let validator = $.fetchValidator (this);
 
-		if (path != ("" || undefined)) {
+		if (path != undefined || path != "") {
 			$.fetchValidator (this).ajax = path;
 		} 
 
-		if (validator.ajax != ("" || undefined)) {
+		if (validator.ajax != undefined || validator.ajax != "") {
 			throw new Error ("No ajax path set");
 		}
 		return $.fetchValidator (this).ajax;
